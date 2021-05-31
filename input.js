@@ -181,17 +181,20 @@ export default function inputManager ({ mouseEventElement, bindings }) {
 
     const endFrame = function () {
         // reset the per-frame flags
-        for (const actionName in actionMap.key) {
+        for (const k in actionMap.key) {
+            const actionName = actionMap.key[k]
             _down[actionName] = false
             _up[actionName] = false
         }
 
-        for (const actionName in actionMap.mouse) {
+        for (const k in actionMap.mouse) {
+            const actionName = actionMap.mouse[k]
             _down[actionName] = false
             _up[actionName] = false
         }
 
-        for (const actionName in actionMap.wheel) {
+        for (const k in actionMap.wheel) {
+            const actionName = actionMap.wheel[k]
             _down[actionName] = false
             _up[actionName] = false
         }
