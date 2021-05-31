@@ -109,7 +109,7 @@ export default function inputManager ({ mouseEventElement, bindings }) {
     }
 
     const _fireMouseWheel = function (ev) {
-        for (const actionName of actionMap.wheel)
+        for (const actionName in actionMap.wheel)
             _down[actionName] = true
     }
 
