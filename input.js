@@ -45,55 +45,61 @@ const defaultBindings = [
 // const Input = inputSystem({ mouseEventElement: window.document, bindings: [ ... ] })
 
 export default function inputManager ({ mouseEventElement, bindings }) {
-	mouseEventElement = mouseEventElement || window.document
-	bindings = bindings || defaultBindings
+    mouseEventElement = mouseEventElement || window.document
+    bindings = bindings || defaultBindings
     
-    let actionMap = { }
+    const actionMap = {
+        key: { },
+        mouse: { },
+        wheel: { }
+    }
+
     const _down = { }
     const _held = { }
     const _up = { }
 
+    let _eventsBound = false
+
+
     const down = function (action) {
-        if (_down[action]) {
-            _held[action] = true
-            _down[action] = false
-            _up[action] = false
-            return true
-        }
-        return false
+        return _down[action]
     }
 
     const up = function (action) {
-        if (_up[action]) {
-            _held[action] = false
-            _down[action] = false
-            _up[action] = false
-            return true
-        }
-        return false
+        return _up[action]
     }
 
     const held = function (action) {
-        return _held[action] || false
+        return _held[action]
     }
 
     const setBindings = function (b = []) {
-        b = JSON.parse(JSON.stringify(b))
-        actionMap = { }
+        _bindEvents()
+
+        actionMap.key = { }
+        actionMap.mouse = { }
+        actionMap.wheel = { }
+
         b.forEach(function (binding) {
-            actionMap[binding.name] = {
-                event: binding.event,
-                value: binding.value,
-            }
+            if (binding.event === 'key')
+                actionMap.key[binding.value] = binding.name
+
+            else if (binding.event === 'mousebutton')
+                actionMap.mouse[binding.value] = binding.name
+
+            else if (binding.event === 'mousewheel')
+                actionMap.wheel[binding.name] = true
         })
     }
 
     // convert an action to human readable name (e.g., 'MOUSE RIGHT')
     const humanActionName = function (binding, val) {
-        if (binding.event === 'mousewheel') return 'MOUSEWHEEL'
+        if (binding.event === 'mousewheel')
+            return 'MOUSEWHEEL'
 
         if (binding.event === 'key') {
-            if (String.fromCharCode(binding.value) === ' ') return 'SPACEBAR'
+            if (String.fromCharCode(binding.value) === ' ')
+                return 'SPACEBAR'
 
             return String.fromCharCode(binding.value)
         }
@@ -103,73 +109,104 @@ export default function inputManager ({ mouseEventElement, bindings }) {
     }
 
     const _fireMouseWheel = function (ev) {
-        Object.keys(actionMap).forEach(function (action) {
-            if (actionMap[action].event === 'mousewheel') _down[action] = true
-        })
+        for (const actionName of actionMap.wheel)
+            _down[actionName] = true
     }
 
     const _fireMouseDown = function (ev) {
         // ev.which:  1 = left, 2 = middle, 3 = right
-        Object.keys(actionMap).forEach(function (action) {
-            if (actionMap[action].event === 'mousebutton' && actionMap[action].value === ev.which)
-                _handleDown(action)
-        })
+        const actionName = actionMap.mouse[ev.which]
+
+        if (actionName)
+            _handleDown(actionName)
     }
 
     const _fireMouseUp = function (ev) {
         // ev.which:  1 = left, 2 = middle, 3 = right
-        Object.keys(actionMap).forEach(function (action) {
-            if (actionMap[action].event === 'mousebutton' && actionMap[action].value === ev.which)
-                _handleUp(action)
-        })
+        const actionName = actionMap.mouse[ev.which]
+
+        if (actionName)
+            _handleUp(actionName)
     }
 
     const _fireKeyDown = function (ev) {
-        Object.keys(actionMap).forEach(function (action) {
-            if (actionMap[action].event === 'key' && actionMap[action].value === ev.code) _handleDown(action)
-        })
+        // holding down a key can repeat the keydown event multiple times. Ignore repeated events
+        if (ev.repeat)
+            return
+
+        const actionName = actionMap.key[ev.code]
+        if (actionName)
+            _handleDown(actionName)
     }
 
     const _fireKeyUp = function (ev) {
-        Object.keys(actionMap).forEach(function (action) {
-            if (actionMap[action].event === 'key' && actionMap[action].value === ev.code) _handleUp(action)
-        })
+        const actionName = actionMap.key[ev.code]
+        if (actionName)
+            _handleUp(actionName)
     }
 
     const _handleDown = function (action) {
-        if (!_held[action]) {
-            if (!_down[action]) _down[action] = true
-            else _down[action] = false
-            _held[action] = true
-        }
         _up[action] = false
+        _down[action] = true
+        _held[action] = true
     }
 
     const _handleUp = function (action) {
+        _up[action] = true
         _down[action] = false
         _held[action] = false
-        _up[action] = true
     }
 
-    const _start = function () {
+    const _bindEvents = function () {
+        unbind()
+        _eventsBound = true
+
         mouseEventElement.addEventListener('mousedown', _fireMouseDown, { passive: true })
         mouseEventElement.addEventListener('mouseup', _fireMouseUp, { passive: true })
-        mouseEventElement.addEventListener('mousewheel', _fireMouseWheel, {
-            passive: true,
-        })
+        mouseEventElement.addEventListener('mousewheel', _fireMouseWheel, { passive: true, })
         document.addEventListener('keydown', _fireKeyDown, { passive: true })
         document.addEventListener('keyup', _fireKeyUp, { passive: true })
     }
 
+    const unbind = function () {
+        if (!_eventsBound)
+            return
+
+        mouseEventElement.removeEventListener('mousedown', _fireMouseDown)
+        mouseEventElement.removeEventListener('mouseup', _fireMouseUp)
+        mouseEventElement.removeEventListener('mousewheel', _fireMouseWheel)
+        document.removeEventListener('keydown', _fireKeyDown)
+        document.removeEventListener('keyup', _fireKeyUp)
+    }
+
+    const endFrame = function () {
+        // reset the per-frame flags
+        for (const actionName in actionMap.key) {
+            _down[actionName] = false
+            _up[actionName] = false
+        }
+
+        for (const actionName in actionMap.mouse) {
+            _down[actionName] = false
+            _up[actionName] = false
+        }
+
+        for (const actionName in actionMap.wheel) {
+            _down[actionName] = false
+            _up[actionName] = false
+        }
+    }
+
     setBindings(bindings)
-    _start()
 
     return {
         down,
         up,
         held,
         actionMap,
+        endFrame,
         setBindings,
+        unbind,
         humanActionName
     }
 }
