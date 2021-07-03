@@ -45,9 +45,9 @@ const Input = inputSystem({
 function gameLoop () {
 
 	// query the input state here, perform game logic and rendering:
-	console.log(Input.down('left')) // true when the key is first pushed down
-	console.log(Input.held('left')) // true while the key is pushed and held down
-	console.log(Input.up('left'))   // true when the key is released
+	console.log(Input.down('walk_left')) // true when the key is first pushed down
+	console.log(Input.held('walk_left')) // true while the key is pushed and held down
+	console.log(Input.up('walk_left'))   // true when the key is released
 
 
 	// should be called at the end of every frame
@@ -62,6 +62,46 @@ requestAnimationFrame(gameLoop) // start the game
 ```
 
 All values for keyboard keys are from https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+
+
+## fixed timestep loops
+
+If you're running physics or just generallly running your game in fixed time steps, you'll want to ensure that you run `Input.endFrame()` _after_ each step:
+
+```javascript
+
+const FIXED_STEP_MS = 16 // run a fixed step every 16 millseconds
+
+const globals = {
+	lastFrameTime: performance.now(),
+	accumulator: 0
+}
+
+
+function fixedUpdate () {
+	// check player input, move units, etc. in here
+	//const left = Input.held('walk_left')
+}
+
+
+function gameLoop () {
+	const newTime = performance.now()
+    const frameTime = newTime - globals.lastFrameTime
+    globals.lastFrameTime = newTime
+
+    globals.accumulator += frameTime
+
+    while (globals.accumulator >= FIXED_STEP_MS) {
+        globals.accumulator -= FIXED_STEP_MS
+        fixedUpdate()
+        Input.endFrame()
+    }
+
+	requestAnimationFrame(gameLoop)
+}
+
+gameLoop()
+```
 
 
 ## alternative mouse event source
