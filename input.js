@@ -1,13 +1,22 @@
+import * as Keyboard from './Keyboard.js'
+import * as Mouse    from './Mouse.js'
+
 
 const defaultBindings = [
     // for mousebutton, value 1 === left, 2 === middle, 3 === right
     /*
-  {
-    name: 'aim',
-    event: 'mousebutton',
-    value: 3
-  },
-  */
+    {
+        name: 'aim',
+        event: 'mousebutton',
+        value: 3
+    },
+    {
+        name: 'down',
+        event: 'gamepad',
+        gamepadIndex: 0,
+        buttonIndex: 4
+    },
+    */
     {
         name: 'down',
         event: 'key',
@@ -45,51 +54,45 @@ const defaultBindings = [
 // const Input = inputSystem({ mouseEventElement: window.document, bindings: [ ... ] })
 
 export default function inputManager ({ mouseEventElement, bindings }) {
-    mouseEventElement = mouseEventElement || window.document
+    Mouse.setEventElement(mouseEventElement)
+
     bindings = bindings || defaultBindings
-    
-    const actionMap = {
-        key: { },
-        mouse: { },
-        wheel: { }
+
+    // key is action name, value is up/down/held states this frame
+    let state = {
+        /*
+        jump: {
+            up: false,
+            down: false,
+            held: false
+        }
+        */
     }
 
+    // key is action name, value is boolean
     const _down = { }
     const _held = { }
     const _up = { }
 
-    let _eventsBound = false
-
 
     const down = function (action) {
-        return _down[action]
+        return state[action].down
     }
 
     const up = function (action) {
-        return _up[action]
+        return state[action].up
     }
 
     const held = function (action) {
-        return _held[action]
+        return state[action].held
     }
 
     const setBindings = function (b = []) {
-        _bindEvents()
+        state = { }
+        bindings = b
 
-        actionMap.key = { }
-        actionMap.mouse = { }
-        actionMap.wheel = { }
-
-        b.forEach(function (binding) {
-            if (binding.event === 'key')
-                actionMap.key[binding.value] = binding.name
-
-            else if (binding.event === 'mousebutton')
-                actionMap.mouse[binding.value] = binding.name
-
-            else if (binding.event === 'mousewheel')
-                actionMap.wheel[binding.name] = true
-        })
+        for (const b of bindings)
+            state[b.name] = { up: false, down: false, held: false }
     }
 
     // convert an action to human readable name (e.g., 'MOUSE RIGHT')
@@ -108,96 +111,44 @@ export default function inputManager ({ mouseEventElement, bindings }) {
         return 'MOUSE ' + buttons[binding.value]
     }
 
-    const _fireMouseWheel = function (ev) {
-        for (const actionName in actionMap.wheel)
-            _down[actionName] = true
-    }
 
-    const _fireMouseDown = function (ev) {
-        // ev.which:  1 = left, 2 = middle, 3 = right
-        const actionName = actionMap.mouse[ev.which]
+    // should run before each fixedUpdate frame
+    const pollState = function () {
 
-        if (actionName)
-            _handleDown(actionName)
-    }
+         for (const b of bindings) {
+            let pressed = false
 
-    const _fireMouseUp = function (ev) {
-        // ev.which:  1 = left, 2 = middle, 3 = right
-        const actionName = actionMap.mouse[ev.which]
+            if (b.event === 'key') {
+                pressed = Keyboard.pressed[b.value]
+            }
+            else if (b.event === 'mousebutton') {
+                pressed = Mouse.pressed[b.value]
+            }
+            else if (b.event === 'gamepad') {
+                const gp = navigator.getGamepads()[b.gamepadIndex]
 
-        if (actionName)
-            _handleUp(actionName)
-    }
+                // TODO: handle gamepad disconnect event. if a controller is removed and a different one is
+                //       added, the gamepad.index value may be re-used.
 
-    const _fireKeyDown = function (ev) {
-        // holding down a key can repeat the keydown event multiple times. Ignore repeated events
-        if (ev.repeat)
-            return
+                pressed = gp?.buttons[b.buttonIndex].pressed
+            }
 
-        const actionName = actionMap.key[ev.code]
-        if (actionName)
-            _handleDown(actionName)
-    }
+            const action = b.name
 
-    const _fireKeyUp = function (ev) {
-        const actionName = actionMap.key[ev.code]
-        if (actionName)
-            _handleUp(actionName)
-    }
+            if (pressed) {
+                state[action].up = false
+                state[action].down = !state[action].held
+                state[action].held = true
 
-    const _handleDown = function (action) {
-        _up[action] = false
-        _down[action] = true
-        _held[action] = true
-    }
+            } else {
+                if (state[action].down)
+                    state[action].up = true
 
-    const _handleUp = function (action) {
-        _up[action] = true
-        _down[action] = false
-        _held[action] = false
-    }
+                state[action].held = false
+                state[action].down = false
+            }
 
-    const _bindEvents = function () {
-        unbind()
-        _eventsBound = true
-
-        mouseEventElement.addEventListener('mousedown', _fireMouseDown, { passive: true })
-        mouseEventElement.addEventListener('mouseup', _fireMouseUp, { passive: true })
-        mouseEventElement.addEventListener('mousewheel', _fireMouseWheel, { passive: true, })
-        document.addEventListener('keydown', _fireKeyDown, { passive: true })
-        document.addEventListener('keyup', _fireKeyUp, { passive: true })
-    }
-
-    const unbind = function () {
-        if (!_eventsBound)
-            return
-
-        mouseEventElement.removeEventListener('mousedown', _fireMouseDown)
-        mouseEventElement.removeEventListener('mouseup', _fireMouseUp)
-        mouseEventElement.removeEventListener('mousewheel', _fireMouseWheel)
-        document.removeEventListener('keydown', _fireKeyDown)
-        document.removeEventListener('keyup', _fireKeyUp)
-    }
-
-    const endFrame = function () {
-        // reset the per-frame flags
-        for (const k in actionMap.key) {
-            const actionName = actionMap.key[k]
-            _down[actionName] = false
-            _up[actionName] = false
-        }
-
-        for (const k in actionMap.mouse) {
-            const actionName = actionMap.mouse[k]
-            _down[actionName] = false
-            _up[actionName] = false
-        }
-
-        for (const k in actionMap.wheel) {
-            const actionName = actionMap.wheel[k]
-            _down[actionName] = false
-            _up[actionName] = false
-        }
+         }
     }
 
     setBindings(bindings)
@@ -206,10 +157,8 @@ export default function inputManager ({ mouseEventElement, bindings }) {
         down,
         up,
         held,
-        actionMap,
-        endFrame,
+        pollState,
         setBindings,
-        unbind,
         humanActionName
     }
 }

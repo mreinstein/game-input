@@ -1,6 +1,6 @@
 # game-input
 
-Provides an efficient, pollable interface for checking the state of keyboard keys and mouse buttons.
+Provides an efficient, pollable interface for checking the state of keyboard keys, mouse buttons, and gamepad buttons.
 
 
 ## usage
@@ -36,7 +36,16 @@ const Input = inputSystem({
             name: 'charge_arrow',
             event: 'mouse',
             value: MIDDLE_MOUSE_BUTTON
-        }
+        },
+
+        /*
+        {
+            name: 'fire',
+            event: 'gamepad',
+            gamepadIndex: 0,
+            buttonIndex: 4
+        },
+        */
     ]
 })
 
@@ -44,14 +53,13 @@ const Input = inputSystem({
 // runs every frame
 function gameLoop () {
 
+    // should be called at the beginning of every frame
+    Input.pollState()
+
     // query the input state here, perform game logic and rendering:
     console.log(Input.down('walk_left')) // true when the key is first pushed down
     console.log(Input.held('walk_left')) // true while the key is pushed and held down
     console.log(Input.up('walk_left'))   // true when the key is released
-
-
-    // should be called at the end of every frame
-    Input.endFrame()
 
     requestAnimationFrame(gameLoop)
 }
@@ -93,8 +101,8 @@ function gameLoop () {
 
     while (globals.accumulator >= FIXED_STEP_MS) {
         globals.accumulator -= FIXED_STEP_MS
+        Input.pollState()
         fixedUpdate()
-        Input.endFrame()
     }
 
     requestAnimationFrame(gameLoop)
