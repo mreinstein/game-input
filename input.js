@@ -76,15 +76,15 @@ export default function inputManager ({ mouseEventElement, bindings }) {
 
 
     const down = function (action) {
-        return state[action].down
+        return state[action]?.down
     }
 
     const up = function (action) {
-        return state[action].up
+        return state[action]?.up
     }
 
     const held = function (action) {
-        return state[action].held
+        return state[action]?.held
     }
 
     const setBindings = function (b = []) {
