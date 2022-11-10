@@ -155,6 +155,20 @@ export default function inputManager ({ mouseEventElement, bindings }) {
          }
     }
 
+    // examine all connected gamepads and return any that have a button press this frame
+    // this is useful when a game/sim decides to assign controllers to different players based on order
+    // e.g., 1st controller with input is player 1, 2nd controller with input is player 2, etc.
+    const getGamepadsWithButtonInput = function () {
+        return navigator.getGamepads().filter(function (gp) {
+            if (!gp)
+                return
+            for (let i=0; i < gp.buttons.length; i++)
+                if (gp.buttons[i].pressed)
+                    return true
+        })
+    }
+
+
     setBindings(bindings)
 
     return {
@@ -162,6 +176,7 @@ export default function inputManager ({ mouseEventElement, bindings }) {
         up,
         held,
         pollState,
+        getGamepadsWithButtonInput,
         setBindings,
         hasBindings,
         humanActionName,
