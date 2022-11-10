@@ -95,6 +95,10 @@ export default function inputManager ({ mouseEventElement, bindings }) {
             state[b.name] = { up: false, down: false, held: false }
     }
 
+    const hasBindings = function () {
+        return bindings.length > 0
+    }
+
     // convert an action to human readable name (e.g., 'MOUSE RIGHT')
     const humanActionName = function (binding, val) {
         if (binding.event === 'mousewheel')
@@ -159,6 +163,7 @@ export default function inputManager ({ mouseEventElement, bindings }) {
         held,
         pollState,
         setBindings,
-        humanActionName
+        hasBindings,
+        humanActionName,
     }
 }
