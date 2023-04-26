@@ -12,5 +12,6 @@ function _fireKeyUp (ev) {
     pressed[ev.code] = false
 }
 
-document.addEventListener('keydown', _fireKeyDown, { passive: true })
-document.addEventListener('keyup', _fireKeyUp, { passive: true })
+
+window.document.addEventListener('keydown', _fireKeyDown, { passive: true })
+window.document.addEventListener('keyup', _fireKeyUp, { passive: true })
