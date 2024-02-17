@@ -51,10 +51,10 @@ const defaultBindings = [
 
 
 // usage:
-// const Input = inputSystem({ mouseEventElement: window.document, bindings: [ ... ] })
+// const Input = inputSystem({ canvas: document.querySelector('canvas')s, bindings: [ ... ] })
 
-export default function inputManager ({ mouseEventElement, bindings }) {
-    Mouse.setEventElement(mouseEventElement)
+export default function inputManager ({ canvas, bindings }) {
+    Mouse.setEventElement(canvas)
 
     bindings = bindings || defaultBindings
 
@@ -180,5 +180,6 @@ export default function inputManager ({ mouseEventElement, bindings }) {
         setBindings,
         hasBindings,
         humanActionName,
+        Mouse,
     }
 }

@@ -1,5 +1,4 @@
-
-let mouseEventElm = mouseEventElement || window.document
+let mouseEventElm = window.document
 let _eventsBound = false 
 
 export const pressed = { }
@@ -8,8 +7,6 @@ _bindEvents()
 
 
 export function setEventElement (mouseEventElement=window.document) {
-    if (mouseEventElm === mouseEventElement)
-        return
     _unbindEvents()
     mouseEventElm = mouseEventElement
     _bindEvents()

@@ -14,6 +14,10 @@ const MIDDLE_MOUSE_BUTTON = 2
 const RIGHT_MOUSE_BUTTON = 3
 
 const Input = inputSystem({
+
+    // whichever canvas element you want mouse events relative to
+    canvas: document.querySelector('canvas'),
+
     bindings: [
         // define all of the mouse and keyboard events you wish to listen for here
         
@@ -61,6 +65,8 @@ function gameLoop () {
     console.log(Input.held('walk_left')) // true while the key is pushed and held down
     console.log(Input.up('walk_left'))   // true when the key is released
 
+    console.log('mouse position:', Input.Mouse.position[0], Input.Mouse.position[1])
+    
     requestAnimationFrame(gameLoop)
 }
 
@@ -109,18 +115,4 @@ function gameLoop () {
 }
 
 gameLoop()
-```
-
-
-## alternative mouse event source
-
-By default, mouse events will be listened for on `window.document`. If you'd like to use a specific DOM element to listen for mouse events instead, you can pass the element when initializing the input library:
-
-```javascript
-const Input = inputSystem({
-    // element you wish to listen for mouse events on (defaults to window.document)
-    mouseEventElement: someDOMElement,
-
-    bindings: [ ... ]
-})
 ```
