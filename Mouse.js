@@ -22,7 +22,7 @@ const _bindEvents = function () {
 
     mouseEventElm.addEventListener('mousedown', _fireMouseDown, { passive: true })
     mouseEventElm.addEventListener('mouseup', _fireMouseUp, { passive: true })
-    mouseEventElm.addEventListener('pointermove', _fireMouseDown, { passive: true })
+    mouseEventElm.addEventListener('pointermove', _firePointerMove, { passive: true })
 }
 
 
@@ -55,8 +55,8 @@ const _firePointerMove = function (ev) {
     const rect = canvasElm.getBoundingClientRect()
 
     const renderScale = 1
-    position[0] = (ev.pageX - rect.x) / renderScale
-    position[1]  = (ev.pageY - rect.y) / renderScale
+    position[0] = Math.round((ev.pageX - rect.x) / renderScale)
+    position[1]  = Math.round((ev.pageY - rect.y) / renderScale)
 }
 
 
