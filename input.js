@@ -51,7 +51,7 @@ const defaultBindings = [
 
 
 // usage:
-// const Input = inputSystem({ canvas: document.querySelector('canvas')s, bindings: [ ... ] })
+// const Input = inputSystem({ canvas: document.querySelector('canvas'), bindings: [ ... ] })
 
 export default function inputManager ({ canvas, bindings }) {
     Mouse.setEventElement(canvas)
@@ -68,12 +68,6 @@ export default function inputManager ({ canvas, bindings }) {
         }
         */
     }
-
-    // key is action name, value is boolean
-    const _down = { }
-    const _held = { }
-    const _up = { }
-
 
     const down = function (action) {
         return state[action]?.down
