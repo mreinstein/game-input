@@ -7,7 +7,7 @@ let _eventsBound = false
 let _scaleFactor = 1
 
 export const pressed = { }
-export const position = [ NaN, NaN ] // mouse position in the canvas element's coordinate space
+export const position = [ 0, 0 ] // mouse position in the canvas element's coordinate space
 
 
 export function setEventElement (canvasElement) {
