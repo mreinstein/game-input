@@ -1,0 +1,30 @@
+{
+  "name": "@footgun/input-sdl",
+  "version": "0.1.0",
+  "description": "Provides an efficient, pollable interface for checking the state of keyboard keys, mouse buttons, and gamepad buttons via SDL.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mreinstein/game-input.git"
+  },
+  "keywords": [
+    "sdl",
+    "input",
+    "game",
+    "sim",
+    "node"
+  ],
+  "author": "Michael Reinstein",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mreinstein/game-input/issues"
+  },
+  "homepage": "https://github.com/mreinstein/game-input#readme",
+  "dependencies": {
+    "@kmamal/sdl": "^0.10.7"
+  }
+}

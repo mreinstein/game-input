@@ -1,0 +1,28 @@
+{
+  "name": "@footgun/input-web",
+  "version": "0.1.0",
+  "description": "An efficient, pollable interface for checking the state of keyboards, mice, and gamepads in a browser.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mreinstein/game-input.git"
+  },
+  "keywords": [
+    "input",
+    "web",
+    "game",
+    "keyboard",
+    "mouse",
+    "gamepad"
+  ],
+  "author": "Michael Reinstein",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mreinstein/game-input/issues"
+  },
+  "homepage": "https://github.com/mreinstein/game-input#readme"
+}

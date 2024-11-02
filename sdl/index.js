@@ -1,62 +1,10 @@
-import * as Keyboard from './Keyboard.js'
-import * as Mouse    from './Mouse.js'
-
-
-const defaultBindings = [
-    // for mousebutton, value 1 === left, 2 === middle, 3 === right
-    /*
-    {
-        name: 'aim',
-        event: 'mousebutton',
-        value: 3
-    },
-    {
-        name: 'down',
-        event: 'gamepad',
-        gamepadIndex: 0,
-        buttonIndex: 4
-    },
-    */
-    {
-        name: 'down',
-        event: 'key',
-        value: 'KeyD',
-    },
-    {
-        name: 'left',
-        event: 'key',
-        value: 'KeyS',
-    },
-    {
-        name: 'right',
-        event: 'key',
-        value: 'KeyF',
-    },
-    {
-        name: 'up',
-        event: 'key',
-        value: 'KeyE',
-    },
-    {
-        name: 'jump',
-        event: 'key',
-        value: 'Space',
-    },
-    {
-        name: 'fire',
-        event: 'key',
-        value: 'Period',
-    }
-]
+import sdl from '@kmamal/sdl'
 
 
 // usage:
-// const Input = inputSystem({ canvas: document.querySelector('canvas'), bindings: [ ... ] })
+// const Input = sdlInput({ bindings... })
 
-export default function inputManager ({ canvas, bindings }) {
-    Mouse.setEventElement(canvas)
-
-    bindings = bindings || defaultBindings
+export default function sdlInput (bindings) {
 
     // key is action name, value is up/down/held states this frame
     let state = {
@@ -68,6 +16,17 @@ export default function inputManager ({ canvas, bindings }) {
         }
         */
     }
+
+    // key is action name, value is boolean
+    const _down = { }
+    const _held = { }
+    const _up = { }
+
+    const Mouse = {
+        pressed: { },
+        setEventElement: function () { }
+    }
+
 
     const down = function (action) {
         return state[action]?.down
@@ -112,15 +71,18 @@ export default function inputManager ({ canvas, bindings }) {
 
     // should run before each fixedUpdate frame
     const pollState = function () {
+        const keyStates = sdl.keyboard.getState()
 
-         for (const b of bindings) {
+        for (const b of bindings) {
             let pressed = false
 
             if (b.event === 'key') {
-                pressed = Keyboard.pressed[b.value]
+                //pressed = Keyboard.pressed[b.value]
+                pressed = keyStates[b.value]
             }
             else if (b.event === 'mousebutton') {
-                pressed = Mouse.pressed[b.value]
+                pressed = sdl.mouse.getButton(b.value)
+                //pressed = Mouse.pressed[b.value]
             }
             else if (b.event === 'gamepad') {
                 const gp = navigator.getGamepads()[b.gamepadIndex]
@@ -145,23 +107,8 @@ export default function inputManager ({ canvas, bindings }) {
                 state[action].held = false
                 state[action].down = false
             }
-
-         }
+        }
     }
-
-    // examine all connected gamepads and return any that have a button press this frame
-    // this is useful when a game/sim decides to assign controllers to different players based on order
-    // e.g., 1st controller with input is player 1, 2nd controller with input is player 2, etc.
-    const getGamepadsWithButtonInput = function () {
-        return navigator.getGamepads().filter(function (gp) {
-            if (!gp)
-                return
-            for (let i=0; i < gp.buttons.length; i++)
-                if (gp.buttons[i].pressed)
-                    return true
-        })
-    }
-
 
     setBindings(bindings)
 
@@ -170,10 +117,10 @@ export default function inputManager ({ canvas, bindings }) {
         up,
         held,
         pollState,
-        getGamepadsWithButtonInput,
+        //getGamepadsWithButtonInput, // TODO: explore how to expose this like the Web backend does
         setBindings,
         hasBindings,
         humanActionName,
-        Mouse,
+        //Mouse,                      // TODO: explore how to expose this like the Web backend does
     }
 }
