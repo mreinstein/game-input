@@ -59,34 +59,31 @@ export default function webInput ({ canvas, bindings }) {
     bindings = bindings || defaultBindings
 
     // key is action name, value is up/down/held states this frame
-    let state = {
-        /*
-        jump: {
-            up: false,
-            down: false,
-            held: false
-        }
-        */
-    }
+    // 'jump'   { up: false, down: false, held: false }
+    const state = new Map()
+        
 
     const down = function (action) {
-        return state[action]?.down
+        return state.get(action)?.down
     }
 
     const up = function (action) {
-        return state[action]?.up
+        return state.get(action)?.up
     }
 
     const held = function (action) {
-        return state[action]?.held
+        return state.get(action)?.held
     }
 
-    const setBindings = function (b = []) {
-        state = { }
+    // @parram Boolean reset when true, clears all previous bindings
+    const setBindings = function (b = [], reset=true) {
         bindings = b
+        if (!reset)
+            return
 
+        state.clear()
         for (const b of bindings)
-            state[b.name] = { up: false, down: false, held: false }
+            state.set(b.name, { up: false, down: false, held: false })
     }
 
     const hasBindings = function () {
@@ -131,19 +128,19 @@ export default function webInput ({ canvas, bindings }) {
                 pressed = gp?.buttons[b.buttonIndex].pressed
             }
 
-            const action = b.name
+            const action = state.get(b.name)
 
             if (pressed) {
-                state[action].up = false
-                state[action].down = !state[action].held
-                state[action].held = true
+                action.up = false
+                action.down = !action.held
+                action.held = true
 
             } else {
-                if (state[action].down)
-                    state[action].up = true
+                if (action.down)
+                    action.up = true
 
-                state[action].held = false
-                state[action].down = false
+                action.held = false
+                action.down = false
             }
 
          }
