@@ -60,6 +60,9 @@ const _fireMouseUp = function (ev) {
 
 
 const _firePointerMove = function (ev) {
+    if (!canvasElm)
+        return
+    
     // gets the rectangle specifying the dimensions and position of the canvas relative to the viewport
     const rect = canvasElm.getBoundingClientRect()
 
