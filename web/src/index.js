@@ -2,13 +2,13 @@ import * as Keyboard from './Keyboard.js'
 import * as Mouse    from './Mouse.js'
 
 
-const defaultBindings = [
-    // for mousebutton, value 1 === left, 2 === middle, 3 === right
-    /*
+// example bindings
+/*
+[
     {
         name: 'aim',
         event: 'mousebutton',
-        value: 3
+        value: 3  // for mousebutton, value 1 === left, 2 === middle, 3 === right
     },
     {
         name: 'down',
@@ -16,38 +16,13 @@ const defaultBindings = [
         gamepadIndex: 0,
         buttonIndex: 4
     },
-    */
     {
         name: 'down',
         event: 'key',
         value: 'KeyD',
     },
-    {
-        name: 'left',
-        event: 'key',
-        value: 'KeyS',
-    },
-    {
-        name: 'right',
-        event: 'key',
-        value: 'KeyF',
-    },
-    {
-        name: 'up',
-        event: 'key',
-        value: 'KeyE',
-    },
-    {
-        name: 'jump',
-        event: 'key',
-        value: 'Space',
-    },
-    {
-        name: 'fire',
-        event: 'key',
-        value: 'Period',
-    }
 ]
+*/
 
 
 // usage:
@@ -56,7 +31,7 @@ const defaultBindings = [
 export default function webInput ({ canvas, bindings }) {
     Mouse.setEventElement(canvas)
 
-    bindings = bindings || defaultBindings
+    bindings = bindings || [ ]
 
     // key is action name, value is up/down/held states this frame
     // 'jump'   { up: false, down: false, held: false }
