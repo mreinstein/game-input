@@ -1,3 +1,7 @@
+# 0.4.0
+* reset key press state upon window resize event
+
+
 # 0.3.1
 * avoid referencing invalid canvas element
 
