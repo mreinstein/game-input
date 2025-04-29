@@ -121,8 +121,8 @@ export default function webInput ({ canvas, bindings }) {
                 if (b.isAnalog) {
                     if (gp) {
                         // convert analog stick value to digital state
-                        const DEAD_ZONE = event.analogAxisDeadZone ?? 0.1
-                        pressed = (gp.axes[event.analogAxisId] / event.analogAxisDirection) > DEAD_ZONE
+                        const DEAD_ZONE = b.analogAxisDeadZone ?? 0.1
+                        pressed = (gp.axes[b.analogAxisId] / b.analogAxisDirection) > DEAD_ZONE
                     }
 
                 } else {

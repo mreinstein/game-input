@@ -1,3 +1,6 @@
+# 0.5.1
+* fix broken analog gamepad feature
+
 # 0.5.0
 * add support for analog gamepad sticks
 
