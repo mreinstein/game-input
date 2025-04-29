@@ -21,6 +21,24 @@ import * as Mouse    from './Mouse.js'
         event: 'key',
         value: 'KeyD',
     },
+    {
+        name: 'down',
+        event: 'gamepad',
+        gamepadIndex: 0,
+
+        isAnalog: true,
+
+        // 0, 1  <-- left analog stick x, y
+        // 2, 3  <-- right analog stick x, y
+        analogAxisId: 0,
+
+        // -1 for left or up, 1 for right or down
+        analogAxisDirection: -1,
+
+        // how much dead zone to allow before converting from analog to digital.
+        // defaults to 0.1
+        analogAxisDeadZone: 0.2,
+    }
 ]
 */
 
@@ -100,7 +118,18 @@ export default function webInput ({ canvas, bindings }) {
                 // TODO: handle gamepad disconnect event. if a controller is removed and a different one is
                 //       added, the gamepad.index value may be re-used.
 
-                pressed = gp?.buttons[b.buttonIndex].pressed
+                if (b.isAnalog) {
+                    if (gp) {
+                        // convert analog stick value to digital state
+                        const DEAD_ZONE = event.analogAxisDeadZone ?? 0.1
+                        pressed = (gp.axes[event.analogAxisId] / event.analogAxisDirection) > DEAD_ZONE
+                    }
+
+                } else {
+                    // must be a gamepad button
+                    pressed = gp?.buttons[b.buttonIndex].pressed
+                }
+                
             }
 
             const action = state.get(b.name)

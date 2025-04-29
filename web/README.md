@@ -41,6 +41,26 @@ const Input = webInput({
             gamepadIndex: 0,
             buttonIndex: 4
         },
+
+        // you can use the analog axes as digital values as well:
+        {
+            name: 'down',
+            event: 'gamepad',
+            gamepadIndex: 0,
+
+            isAnalog: true,
+
+            // 0, 1  <-- left analog stick x, y
+            // 2, 3  <-- right analog stick x, y
+            analogAxisId: 0,
+
+            // -1 for left or up, 1 for right or down
+            analogAxisDirection: -1,
+
+            // how much dead zone to allow before converting from analog to digital.
+            // defaults to 0.1
+            analogAxisDeadZone: 0.2,
+        }
         */
     ]
 })

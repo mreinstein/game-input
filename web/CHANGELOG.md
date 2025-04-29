@@ -1,3 +1,6 @@
+# 0.5.0
+* add support for analog gamepad sticks
+
 # 0.4.0
 * reset key press state upon window resize event
 
