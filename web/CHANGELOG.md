@@ -1,3 +1,6 @@
+# 0.6.0
+* handle multiple bindings to the same event name
+
 # 0.5.2
 * update gamepad analog stick zeadzone threshold default from 0.1 to 0.5
 
