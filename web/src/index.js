@@ -49,7 +49,39 @@ import * as Mouse    from './Mouse.js'
 export default function webInput ({ canvas, bindings }) {
     Mouse.setEventElement(canvas)
 
-    bindings = bindings || [ ]
+    /*
+    // a map where key is the event name, and value is all control bindings for it
+    _bindings: {
+        fire: [
+            {
+                name: 'down',
+                event: 'gamepad',
+                gamepadIndex: controlsGamepad?.index,
+                buttonIndex: 13,
+            },
+            {
+                name: 'down',
+                event: 'gamepad',
+                gamepadIndex: 0,
+
+                isAnalog: true,
+
+                // 0, 1  <-- left analog stick x, y
+                // 2, 3  <-- right analog stick x, y
+                analogAxisId: 0,
+
+                // -1 for left or up, 1 for right or down
+                analogAxisDirection: -1,
+
+                // how much dead zone to allow before converting from analog to digital.
+                // defaults to 0.1
+                analogAxisDeadZone: 0.2,
+            }
+        ]
+    }
+    */
+
+    let _bindings = { }
 
     // key is action name, value is up/down/held states this frame
     // 'jump'   { up: false, down: false, held: false }
@@ -70,17 +102,25 @@ export default function webInput ({ canvas, bindings }) {
 
     // @parram Boolean reset when true, clears all previous bindings
     const setBindings = function (b = [], reset=true) {
-        bindings = b
+
+        _bindings = { }
+        for (const next of b) {
+            if (!_bindings[next.name])
+                _bindings[next.name] = [ ]
+
+            _bindings[next.name].push(structuredClone(next))
+        }
+        
         if (!reset)
             return
 
         state.clear()
-        for (const b of bindings)
-            state.set(b.name, { up: false, down: false, held: false })
+        for (const next of b)
+            state.set(next.name, { up: false, down: false, held: false })
     }
 
     const hasBindings = function () {
-        return bindings.length > 0
+        return state.size > 0
     }
 
     // convert an action to human readable name (e.g., 'MOUSE RIGHT')
@@ -103,36 +143,41 @@ export default function webInput ({ canvas, bindings }) {
     // should run before each fixedUpdate frame
     const pollState = function () {
 
-         for (const b of bindings) {
+        for (const eventName in _bindings) {
             let pressed = false
 
-            if (b.event === 'key') {
-                pressed = Keyboard.pressed[b.value]
-            }
-            else if (b.event === 'mousebutton') {
-                pressed = Mouse.pressed[b.value]
-            }
-            else if (b.event === 'gamepad') {
-                const gp = navigator.getGamepads()[b.gamepadIndex]
+            for (const b of _bindings[eventName]) {
+                let _pressed = false
 
-                // TODO: handle gamepad disconnect event. if a controller is removed and a different one is
-                //       added, the gamepad.index value may be re-used.
-
-                if (b.isAnalog) {
-                    if (gp) {
-                        // convert analog stick value to digital state
-                        const DEAD_ZONE = b.analogAxisDeadZone ?? 0.1
-                        pressed = (gp.axes[b.analogAxisId] / b.analogAxisDirection) > DEAD_ZONE
-                    }
-
-                } else {
-                    // must be a gamepad button
-                    pressed = gp?.buttons[b.buttonIndex].pressed
+                if (b.event === 'key') {
+                    _pressed = Keyboard.pressed[b.value]
                 }
-                
+                else if (b.event === 'mousebutton') {
+                    _pressed = Mouse.pressed[b.value]
+                }
+                else if (b.event === 'gamepad') {
+                    const gp = navigator.getGamepads()[b.gamepadIndex]
+
+                    // TODO: handle gamepad disconnect event. if a controller is removed and a different one is
+                    //       added, the gamepad.index value may be re-used.
+
+                    if (b.isAnalog) {
+                        if (gp) {
+                            // convert analog stick value to digital state
+                            const DEAD_ZONE = b.analogAxisDeadZone ?? 0.5
+                            _pressed = (gp.axes[b.analogAxisId] / b.analogAxisDirection) > DEAD_ZONE
+                        }
+
+                    } else {
+                        // must be a gamepad button
+                        pressed = gp?.buttons[b.buttonIndex].pressed
+                    }   
+                }
+
+                pressed = pressed || _pressed
             }
 
-            const action = state.get(b.name)
+            const action = state.get(eventName)
 
             if (pressed) {
                 action.up = false
@@ -146,8 +191,7 @@ export default function webInput ({ canvas, bindings }) {
                 action.held = false
                 action.down = false
             }
-
-         }
+        }
     }
 
     // examine all connected gamepads and return any that have a button press this frame

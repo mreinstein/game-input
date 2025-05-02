@@ -1,3 +1,6 @@
+# 0.5.2
+* update gamepad analog stick zeadzone threshold default from 0.1 to 0.5
+
 # 0.5.1
 * fix broken analog gamepad feature
 
