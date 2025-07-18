@@ -25,6 +25,6 @@
   },
   "homepage": "https://github.com/mreinstein/game-input#readme",
   "dependencies": {
-    "@kmamal/sdl": "^0.10.7"
+    "@kmamal/sdl": "^0.11.0"
   }
 }
